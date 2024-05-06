@@ -1,24 +1,37 @@
+'''
+"""Name: Michael Zhao
+CS230: 2
+Data: Massachusetts Car Crash 2017
+Description:
+This program runs different queries related to crashes that occurred within 
+certain cities/towns, months, and hours. The program consists of maps, graphs,
+and widgets that make the UI more accessible and easy to understand.
+Streamlit cloud link: https://cs230project-mzhao.streamlit.app/
+'''
+
+
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 import pydeck as pdk
 
-def getdf():
+def getdf(): #function loads the dataset from CSV file
     df = pd.read_csv("2017_Crashes_10000_sample.csv")
     return df
 
 def bar_chart(df, start_month, end_month):
     st.title('Crashes by Hour in Massachusetts')
-    df['CRASH_DATE_TEXT'] = [pd.to_datetime(date) for date in df['CRASH_DATE_TEXT']]
+    df['CRASH_DATE_TEXT'] = [pd.to_datetime(date) for date in df['CRASH_DATE_TEXT']] 
     filtered_df = df[(df['CRASH_DATE_TEXT'] >= start_month) & (df['CRASH_DATE_TEXT'] <= end_month)]
     crashes_per_hour = filtered_df.groupby('CRASH_HOUR').size()
-
     if crashes_per_hour.empty:
         st.error("No crashes recorded for the selected date range. Please adjust the slider.")
+        return None, None
     else:
         st.bar_chart(crashes_per_hour)
+        return filtered_df, crashes_per_hour
 
-def map_crashes(df, selected_city='Boston'):
+def map_crashes(df, selected_city='Boston'): #multi parameter, Boston is a default value 
     st.title(f'Map of Crashes in {selected_city}')
     selected_crashes = df[df['CITY_TOWN_NAME'] == selected_city]
     center_lat = selected_crashes['LAT'].mean()
